@@ -35,9 +35,12 @@ jobs:
       - run: flutter pub get
 
       - name: flutter analyze
-        run: flutter analyze > analyze.log 2>&1 || true
+        id: analyze
+        continue-on-error: true
+        run: flutter analyze > analyze.log 2>&1
 
       - name: Опубликовать отчёт анализа в issue
+        if: steps.analyze.outcome == 'failure'
         uses: actions/github-script@v7
         with:
           script: |
