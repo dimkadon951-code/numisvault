@@ -5,7 +5,49 @@ on:
   push:
     branches: [main, master]
 
+permissions:
+  contents: read
+
 jobs:
+  diagnose:
+    name: Анализ кода
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Сгенерировать нативную оболочку Android
+        run: flutter create --project-name numisvault --org com.numisvault --platforms=android .
+
+      - name: Вернуть файлы проекта, если create их перезаписал
+        run: git checkout -- .
+
+      - run: flutter pub get
+
+      - name: flutter analyze
+        run: flutter analyze > analyze.log 2>&1 || true
+
+      - name: Опубликовать отчёт анализа в issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let log = 'нет файла analyze.log';
+            try { log = fs.readFileSync('analyze.log', 'utf8'); } catch (e) {}
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Diagnostics: flutter analyze',
+              body: '```\n' + log.slice(0, 60000) + '\n```',
+            });
+
   android:
     name: Android APK
     runs-on: ubuntu-latest
