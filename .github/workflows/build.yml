@@ -29,6 +29,9 @@ jobs:
       - name: Вернуть файлы проекта, если create их перезаписал
         run: git checkout -- .
 
+      - name: Убрать сгенерированный шаблонный тест
+        run: rm -f test/widget_test.dart
+
       - run: flutter pub get
 
       - name: flutter analyze

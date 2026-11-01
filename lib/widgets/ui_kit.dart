@@ -3,6 +3,7 @@ import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import 'velvet.dart';
 
 /// Кнопка из латуни с полированным градиентом и «вдавливанием» при нажатии.
 class BrassButton extends StatefulWidget {
